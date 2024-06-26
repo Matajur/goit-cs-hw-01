@@ -174,21 +174,12 @@ class Parser:
         """Parser for arithmetic expressions"""
         node = self.term()
 
-        while self.current_token.type in (
-            TokenType.PLUS,
-            TokenType.MINUS,
-            TokenType.MUL,
-            TokenType.DIV,
-        ):
+        while self.current_token.type in (TokenType.PLUS, TokenType.MINUS):
             token = self.current_token
             if token.type == TokenType.PLUS:
                 self.eat(TokenType.PLUS)
             elif token.type == TokenType.MINUS:
                 self.eat(TokenType.MINUS)
-            elif token.type == TokenType.MUL:
-                self.eat(TokenType.MUL)
-            elif token.type == TokenType.DIV:
-                self.eat(TokenType.DIV)
 
             node = BinOp(left=node, operand=token, right=self.term())
 
@@ -226,7 +217,10 @@ class Interpreter:
         elif node.op.type == TokenType.MUL:
             return self.visit(node.left) * self.visit(node.right)
         elif node.op.type == TokenType.DIV:
-            return self.visit(node.left) / self.visit(node.right)
+            try:
+                return self.visit(node.left) / self.visit(node.right)
+            except ZeroDivisionError:
+                return "Division by zero"
 
     def visit_Num(self, node: Num):
         """Gets value from the Num node"""
